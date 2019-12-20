@@ -1,0 +1,60 @@
+package com.liu.httpclient.test;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+
+import java.io.File;
+import java.io.IOException;
+
+/**
+ * @className: MultipartUpload
+ * @author: yu.liu
+ * @date: 2019/12/20 11:03
+ * @description: HttpClient分段上传请求示例
+ */
+public class MultipartUpload {
+    public static void main(String[] args) throws IOException {
+
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+
+            File file = new File("");
+            String message = "This is a multipart post";
+
+            HttpEntity data = MultipartEntityBuilder.create()
+                    .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+                    .addBinaryBody("upfile", file, ContentType.DEFAULT_BINARY, file.getName())
+                    .addTextBody("text", message, ContentType.DEFAULT_BINARY)
+                    .build();
+
+            HttpUriRequest request = RequestBuilder
+                    .post("http://httpbin.org/post")
+                    .setEntity(data)
+                    .build();
+
+            System.out.println("Executing request " + request.getRequestLine());
+
+            ResponseHandler<String> responseHandler = response -> {
+                int status = response.getStatusLine().getStatusCode();
+                if (status >= 200 && status < 300) {
+                    HttpEntity entity = response.getEntity();
+                    return entity != null ? EntityUtils.toString(entity) : null;
+                } else {
+                    throw new ClientProtocolException("Unexpected response status: " + status);
+                }
+            };
+            String responseBody = httpclient.execute(request, responseHandler);
+            System.out.println("----------------------------------------");
+            System.out.println(responseBody);
+        }
+
+    }
+}
