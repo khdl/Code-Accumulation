@@ -1,2 +1,0 @@
-# Code-Accumulation
-code accumulation
