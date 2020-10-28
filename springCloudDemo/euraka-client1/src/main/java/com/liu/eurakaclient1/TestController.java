@@ -20,6 +20,6 @@ public class TestController {
 
     @RequestMapping(value = "hello", method = RequestMethod.GET)
     public String hello() {
-        return "hi，i'm from：" + port;
+        return "结果来自：" + port;
     }
 }
